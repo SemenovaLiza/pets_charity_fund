@@ -18,7 +18,7 @@ async def check_name_duplicate(
     project_id = await charity_project_crud.get_project_id_by_name(project_name, session)
     if project_id is not None:
         raise HTTPException(
-            status_code=422,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail='Проект с таким именем уже существует!',
         )
 
@@ -33,8 +33,8 @@ async def check_charity_project_exists(
     )
     if charity_project is None:
         raise HTTPException(
-            status_code=404,
-            detail='Переговорка не найдена!'
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Проект не найдена!'
         )
     return charity_project
 
@@ -48,6 +48,14 @@ def check_charity_project_is_closed(charity_project: CharityProject):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Закрытый проект нельзя редактировать!'
+        )
+
+
+def check_charity_project_invested_amount(project: CharityProject, new_amount: int):
+    if project.invested_amount > new_amount:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Нельзя установить сумму, ниже уже вложенной!'
         )
 
 

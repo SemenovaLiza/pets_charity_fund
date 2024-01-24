@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (check_charity_project_exists,
+                                check_charity_project_invested_amount,
                                 check_charity_project_is_closed,
                                 check_charity_project_is_invested,
                                 check_name_duplicate)
@@ -29,7 +30,8 @@ async def create_charity_project(
     charity_project: CharityProjectCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров.
+    """
+    Только для суперпользователей.
     Создает благотворительный проект.
     """
     await check_name_duplicate(charity_project.name, session)
@@ -49,7 +51,7 @@ async def create_charity_project(
 async def get_all_charity_projects(
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Получает список всех проектов."""
+    """Возвращает список всех проектов."""
     all_projects = await charity_project_crud.get_multi(session)
     return all_projects
 
@@ -64,8 +66,9 @@ async def update_charity_project(
     obj_in: CharityProjectUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров.
-    Закрытый проект нельзя редактировать.
+    """
+    Только для суперюзеров.
+    Редактирует проект, если в него еще не были внесены пожертвования.
     """
     project = await check_charity_project_exists(
         project_id, session
@@ -73,6 +76,10 @@ async def update_charity_project(
     check_charity_project_is_closed(project)
     if obj_in.name:
         await check_name_duplicate(obj_in.name, session)
+    if obj_in.full_amount:
+        await check_charity_project_invested_amount(
+            obj_in.full_amount, session
+        )
     charity_project = await charity_project_crud.update(
         project, obj_in, session
     )
@@ -88,7 +95,8 @@ async def delete_charity_project(
     project_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров.
+    """
+    Только для суперюпользователей.
     Удаляет проект, если в него еще не были инвестированы средства.
     """
     project = await check_charity_project_exists(
