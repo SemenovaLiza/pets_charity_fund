@@ -7,10 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import CharityProject, Donation
 
 
-async def get_not_full_invested_objects(
+async def get_not_fully_invested_objects(
     obj_in: Union[CharityProject, Donation],
     session: AsyncSession
 ) -> List[Union[CharityProject, Donation]]:
+    """
+    Возвращает список проектов, которые еще
+    не собрали нужную сумму пожертвований.
+    """
     objects = await session.execute(
         select(obj_in).where(obj_in.fully_invested == 0
                              ).order_by(obj_in.create_date)
@@ -19,16 +23,24 @@ async def get_not_full_invested_objects(
 
 
 async def close_donation_for_obj(obj_in: Union[CharityProject, Donation]):
+    """
+    Закрывает проект, когда внесенные пожертвования
+    покрывают требуемую сумму.
+    """
     obj_in.invested_amount = obj_in.full_amount
     obj_in.fully_invested = True
     obj_in.close_date = datetime.now()
     return obj_in
 
 
-async def invest_money(
+async def money_distribution(
     obj_in: Union[CharityProject, Donation],
     obj_model: Union[CharityProject, Donation],
 ) -> Union[CharityProject, Donation]:
+    """
+    Функция отвечает за распределение новых пожертвований
+    между проектами, не собравшими требуемую для закрытия сумму.
+    """
     free_amount_in = obj_in.full_amount - obj_in.invested_amount
     free_amount_in_model = obj_model.full_amount - obj_model.invested_amount
 
@@ -52,10 +64,11 @@ async def investing_process(
     model_add: Union[CharityProject, Donation],
     session: AsyncSession,
 ) -> Union[CharityProject, Donation]:
-    objects_model = await get_not_full_invested_objects(model_add, session)
+    """Вызывается после поступления нового пожертвования."""
+    objects_model = await get_not_fully_invested_objects(model_add, session)
 
     for model in objects_model:
-        obj_in, model = await invest_money(obj_in, model)
+        obj_in, model = await money_distribution(obj_in, model)
         session.add(obj_in)
         session.add(model)
 

@@ -55,7 +55,7 @@ async def get_my_reservations(
     user: User = Depends(current_user)
 ):
     """Получить список моих пожертвований."""
-    donations = await donation_crud.get_by_user(
+    donations = await donation_crud.get_donstion_by_user(
         session=session, user=user
     )
     return donations

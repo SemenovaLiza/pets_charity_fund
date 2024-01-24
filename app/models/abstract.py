@@ -6,6 +6,9 @@ from app.core.db import Base
 
 
 class Abstract(Base):
+    """
+    Базовый класс для моделей пожертвований и проектов.
+    """
 
     __abstract__ = True
 
