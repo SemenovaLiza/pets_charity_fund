@@ -14,12 +14,14 @@ class CharityProject(Abstract):
         return (
             f'CharityProject(name={self.name}, '
             f'description={self.description}), '
+            f'full_amount={self.full_amount}), '
             f'invested_amount={self.invested_amount})'
         )
 
     def __str__(self):
         return (
             f'Благотворительный проект: {self.name}, '
-            f'описание проекта: {self.description}'
-            f'необходимая сумма: {self.invested_amount}'
+            f'описание проекта: {self.description}, '
+            f'необходимая сумма: {self.full_amount}, '
+            f'внесенная сумма: {self.invested_amount})'
         )
