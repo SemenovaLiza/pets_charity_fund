@@ -52,10 +52,13 @@ def check_charity_project_is_closed(charity_project: CharityProject):
 
 
 def check_charity_project_invested_amount(project: CharityProject, new_amount: int):
+    """
+    Проверка, что новаяь требуемую сумму меньше уже внесённой.
+    """
     if project.invested_amount > new_amount:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Нельзя установить сумму, ниже уже вложенной!'
+            detail='Нельзя установить новую требуемую сумму, ниже уже вложенной!'
         )
 
 
