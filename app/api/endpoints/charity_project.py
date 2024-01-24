@@ -67,7 +67,7 @@ async def update_charity_project(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Только для суперюзеров.
+    Только для суперпользователей.
     Редактирует проект, если в него еще не были внесены пожертвования.
     """
     project = await check_charity_project_exists(
