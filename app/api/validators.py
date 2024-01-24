@@ -12,7 +12,7 @@ async def check_name_duplicate(
         session: AsyncSession,
 ) -> None:
     """
-    Проверка, новое имя проекта не принадлежит другому
+    Проверка, что новое имя проекта не принадлежит другому
     существующему в фонде проекту.
     """
     project_id = await charity_project_crud.get_project_id_by_name(project_name, session)
@@ -41,8 +41,7 @@ async def check_charity_project_exists(
 
 def check_charity_project_is_closed(charity_project: CharityProject):
     """
-    Проверка, что если в проект были внесены средства,
-    то его удаление запрещено.
+    Проверка, что закрытый проект нельзя редактировать.
     """
     if charity_project.fully_invested:
         raise HTTPException(
@@ -53,7 +52,7 @@ def check_charity_project_is_closed(charity_project: CharityProject):
 
 def check_charity_project_invested_amount(project: CharityProject, new_amount: int):
     """
-    Проверка, что новаяь требуемую сумму меньше уже внесённой.
+    Проверка, что новая требуемя сумму не меньше уже внесённой.
     """
     if project.invested_amount > new_amount:
         raise HTTPException(
