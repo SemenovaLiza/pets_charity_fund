@@ -60,6 +60,7 @@ def do_run_migrations(connection):
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        render_as_batch=True,
     )
 
     with context.begin_transaction():
