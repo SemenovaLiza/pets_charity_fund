@@ -14,6 +14,12 @@ from app.services.investment import investing_process
 router = APIRouter()
 
 
+@router.post(
+    '/',
+    response_model=DonationDB,
+    dependencies=[Depends(current_user)],
+    response_model_exclude_none=True,
+)
 async def create_donation(
     donation: DonationCreate,
     session: AsyncSession = Depends(get_async_session),
@@ -24,7 +30,7 @@ async def create_donation(
     """
     new_donation = donation_crud.create_not_commit(donation, user)
     session.add(new_donation)
-    fill_models = await charity_project_crud.get_not_full_invested_objects(session)
+    fill_models = await charity_project_crud.get_not_full_invested_objects(session) # noqa
     invested_list = investing_process(new_donation, fill_models)
     await donation_crud.commit_models(invested_list, session)
     await session.refresh(new_donation)
