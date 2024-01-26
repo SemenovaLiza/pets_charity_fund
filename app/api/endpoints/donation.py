@@ -30,7 +30,7 @@ async def create_donation(
     """
     new_donation = donation_crud.create_not_commit(donation, user)
     session.add(new_donation)
-    fill_models = await charity_project_crud.get_not_full_invested_objects(session) # noqa
+    fill_models = await charity_project_crud.get_not_fully_invested_objects(session) # noqa
     invested_list = investing_process(new_donation, fill_models)
     await donation_crud.commit_models(invested_list, session)
     await session.refresh(new_donation)
