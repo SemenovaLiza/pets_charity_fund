@@ -9,7 +9,7 @@ from typing import List
 from app.models.charity_project import CharityProject
 
 
-def investment(
+def investing_process(
     target: CharityProject,
     sources: List[CharityProject]
 ) -> List[CharityProject]:
