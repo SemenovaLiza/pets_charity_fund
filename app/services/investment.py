@@ -9,11 +9,13 @@ from typing import List
 from app.models.charity_project import CharityProject
 
 
-def investing_process(
+def investment(
     target: CharityProject,
     sources: List[CharityProject]
 ) -> List[CharityProject]:
     modified = []
+    if not target.invested_amount and target.invested_amount != 0:
+        target.invested_amount = 0
     for source in sources:
         to_invest = target.full_amount - target.invested_amount
         for obj in (target, source):
