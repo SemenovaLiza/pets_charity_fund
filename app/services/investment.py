@@ -41,7 +41,7 @@ async def money_distribution(
     return obj_in, obj_model
 
 
-def investment(
+def investing_process(
     target: CharityProject,
     sources: List[CharityProject]
 ) -> List[CharityProject]:
