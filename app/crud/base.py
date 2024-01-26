@@ -31,20 +31,24 @@ class CRUDBase:
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
-    async def create(
+    def create_not_commit(
             self,
             obj_in,
-            session: AsyncSession,
             user: Optional[User] = None
     ):
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
         return db_obj
+
+    async def commit_models(
+            self,
+            obj_list,
+            session: AsyncSession,
+    ):
+        session.add_all(obj_list)
+        await session.commit()
 
     async def update(
             self,
@@ -71,3 +75,14 @@ class CRUDBase:
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    async def get_not_fully_invested_objects(
+        self,
+        session: AsyncSession
+    ):
+        objects = await session.execute(
+            select(self.model).where(
+                self.model.fully_invested == 0
+            ).order_by(self.model.create_date)
+        )
+        return objects.scalars().all()

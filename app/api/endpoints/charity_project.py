@@ -10,8 +10,7 @@ from app.api.validators import (check_charity_project_exists,
                                 check_name_duplicate)
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud.charity_project import charity_project_crud
-from app.models import Donation
+from app.crud import charity_project_crud, donation_crud
 from app.schemas.charity_project import (CharityProjectCreate,
                                          CharityProjectDB,
                                          CharityProjectUpdate)
@@ -38,8 +37,12 @@ async def create_charity_project(
     await charity_project_crud.get_project_id_by_name(
         charity_project.name, session
     )
-    new_project = await charity_project_crud.create(charity_project, session)
-    await investing_process(new_project, Donation, session)
+    new_project = charity_project_crud.create_not_commit(charity_project)
+    session.add(new_project)
+    fill_models = await donation_crud.get_not_full_invested_objects(session)
+    invested_list = investing_process(new_project, fill_models)
+    await charity_project_crud.commit_models(invested_list, session)
+    await session.refresh(new_project)
     return new_project
 
 

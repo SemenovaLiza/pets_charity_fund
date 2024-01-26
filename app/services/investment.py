@@ -1,25 +1,7 @@
 from datetime import datetime
 from typing import List, Union
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models import CharityProject, Donation
-
-
-async def get_not_fully_invested_objects(
-    obj_in: Union[CharityProject, Donation],
-    session: AsyncSession
-) -> List[Union[CharityProject, Donation]]:
-    """
-    Возвращает список проектов, которые еще
-    не собрали нужную сумму пожертвований.
-    """
-    objects = await session.execute(
-        select(obj_in).where(obj_in.fully_invested == 0
-                             ).order_by(obj_in.create_date)
-    )
-    return objects.scalars().all()
 
 
 async def close_donation_for_obj(obj_in: Union[CharityProject, Donation]):
@@ -59,19 +41,19 @@ async def money_distribution(
     return obj_in, obj_model
 
 
-async def investing_process(
-    obj_in: Union[CharityProject, Donation],
-    model_add: Union[CharityProject, Donation],
-    session: AsyncSession,
-) -> Union[CharityProject, Donation]:
-    """Вызывается после поступления нового пожертвования."""
-    objects_model = await get_not_fully_invested_objects(model_add, session)
-
-    for model in objects_model:
-        obj_in, model = await money_distribution(obj_in, model)
-        session.add(obj_in)
-        session.add(model)
-
-    await session.commit()
-    await session.refresh(obj_in)
-    return obj_in
+def investment(
+    target: CharityProject,
+    sources: List[CharityProject]
+) -> List[CharityProject]:
+    modified = []
+    for source in sources:
+        to_invest = target.full_amount - target.invested_amount
+        for obj in (target, source):
+            obj.invested_amount += to_invest
+            if obj.full_amount == obj.invested_amount:
+                obj.close_date = datetime.now()
+                obj.fully_invested = True
+        modified.append(source)
+        if target.fully_invested:
+            break
+    return modified

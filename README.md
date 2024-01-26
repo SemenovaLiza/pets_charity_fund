@@ -20,6 +20,23 @@ Install requirements.txt:
 ```
 pip install -r requirements.txt
 ``` 
+Create .env file:
+```
+touch .env
+```
+Fill the .env file:
+```
+APP_TITLE=App_title
+DESCRIPTION=Description
+DATABASE_URL=sqlite+aiosqlite:///./fastapi.db
+SECRET=Secret
+FIRST_SUPERUSER_EMAIL=login@email.com
+FIRST_SUPERUSER_PASSWORD=password
+```
+Make migrations file
+```
+alembic revision --autogenerate -m "First migration" 
+```
 Run migrations
 ```
 alembic upgrade head
@@ -28,6 +45,7 @@ Run server
 ```
 uvicorn app.main:app --reload
 ```
+
 ## Documentation
 
 Download project's documentation openapi.json:
