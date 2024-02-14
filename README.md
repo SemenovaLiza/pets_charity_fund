@@ -1,5 +1,5 @@
-# QRKot
-A training project of the application API for the QRKot Cat Charitable Foundation. Its purpose is to collect and distribute donations among various charity projects.
+# Charity fund for pets
+A training project of the application API for the Charitable Foundation. Its purpose is to collect and distribute donations among various charity projects.
 ## Technologies
 - [Python](https://www.python.org/)
 - [FastAPI](https://fastapi.tiangolo.com/)
